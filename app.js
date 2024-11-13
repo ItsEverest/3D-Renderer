@@ -5,7 +5,6 @@ let cubeVerticies = document.getElementById("cubeVerticies");
 let cubeEdges = document.getElementById("cubeEdges");
 
 
-
 var c = document.getElementById("renderCanvas");
 var ctx = c.getContext("2d");
 const scale = 2;
@@ -24,6 +23,16 @@ cube.edges = [
     [0, 4], [1, 5], [2, 6], [3, 7]  // vertical edges
 ];
 
+// Tak ChatGPT nie chciało mi się pisać tabelek
+cube.faces = [
+    [0, 1, 2, 3], // Front face
+    [4, 5, 6, 7], // Back face
+    [0, 3, 7, 4], // Left face
+    [1, 2, 6, 5], // Right face
+    [0, 1, 5, 4], // Bottom face
+    [3, 2, 6, 7]  // Top face
+];
+
 //Stats
 cubeVerticies.innerHTML = "cube.verticies: " + cube.vertices;
 cubeEdges.innerHTML = "cube.edges: " + cube.edges;
@@ -33,15 +42,16 @@ let animreverse = 10;
 let rotationX = 0;
 let rotationY = 0;
 let rotationZ = 0;
-let rotationSpeed = 0.01;
+let rotationSpeed = 0.05;
 function animate(){
+
     if(anim < 10){
-        cube.pos[0] = anim;
+        cube.pos[0] = -380;
         drawCube();
         rotationX += rotationSpeed;
         rotationY += rotationSpeed;
         rotationZ += rotationSpeed;
-        anim+=10;
+        //anim+=5;
         requestAnimationFrame(animate);
     } else if(animreverse>-380){
         cube.pos[0] = animreverse;
@@ -49,7 +59,7 @@ function animate(){
         rotationX += rotationSpeed;
         rotationY += rotationSpeed;
         rotationZ += rotationSpeed;
-        animreverse-=10;
+        animreverse-=5;
         requestAnimationFrame(animate);
     } else {
         anim = -380;
@@ -76,6 +86,8 @@ function drawCube(){
     ];
 
 
+    // Edges
+    const tempVerticies = [];
     for(let i = 0; i<(cube.edges).length; i++){
         const edgeStart = cube.edges[i][0];
         const edgeEnd = cube.edges[i][1];
@@ -91,12 +103,16 @@ function drawCube(){
         const endX = projectedX(rotatedEnd) * scale + c.width / 2;
         const endY = projectedY(rotatedEnd) * scale + c.height / 2;
 
+
         ctx.strokeStyle = "blue";
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.lineTo(endX, endY);
-        ctx.stroke();        
+        ctx.stroke();
+
+        
     }
+
 }
 
 
@@ -142,3 +158,44 @@ function projectedY(pos){
 }
 
 
+
+
+
+
+
+
+
+
+// Camera Steering
+
+window.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented) {
+      return;
+    }
+    switch (event.key) {
+      case "ArrowDown":
+        console.log("down");
+        camera.pos[1] += 10;
+        break;
+      case "ArrowUp":
+        camera.pos[1] -= 10;
+        break;
+      case "ArrowLeft":
+        camera.pos[0] -= 10;
+        break;
+      case "ArrowRight":
+        camera.pos[0] += 10;
+        break;
+      case "s":
+        camera.pos[2] -= 10;
+        break;
+      case "w":
+        camera.pos[2] += 10;
+        break;
+      default:
+        return; // Quit when this doesn't handle the key event.
+    }
+  
+    // Cancel the default action to avoid it being handled twice
+    event.preventDefault();
+  }, true);
