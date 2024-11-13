@@ -178,18 +178,23 @@ window.addEventListener("keydown", function (event) {
         camera.pos[1] += 10;
         break;
       case "ArrowUp":
+        console.log("up");
         camera.pos[1] -= 10;
         break;
       case "ArrowLeft":
+        console.log("left");
         camera.pos[0] -= 10;
         break;
       case "ArrowRight":
+        console.log("right");
         camera.pos[0] += 10;
         break;
       case "s":
+        console.log("s");
         camera.pos[2] -= 10;
         break;
       case "w":
+        console.log("w");
         camera.pos[2] += 10;
         break;
       default:
