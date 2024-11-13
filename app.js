@@ -70,9 +70,9 @@ function drawCube(){
     //Calculating origin point
 
     const centerOffset = [
-        (cube.vertices[6][0] + cube.vertices[0][0]) /2,
-        (cube.vertices[6][1] + cube.vertices[0][1]) /2,
-        (cube.vertices[6][2] + cube.vertices[0][2]) /2
+        (cube.vertices[6][0] + cube.vertices[0][0]) / 2,
+        (cube.vertices[6][1] + cube.vertices[0][1]) / 2,
+        (cube.vertices[6][2] + cube.vertices[0][2]) / 2
     ];
 
 
@@ -80,13 +80,16 @@ function drawCube(){
         const edgeStart = cube.edges[i][0];
         const edgeEnd = cube.edges[i][1];
         
-        const startVertex = rotateVertex(cube.vertices[edgeStart], centerOffset);
-        const endVertex = rotateVertex(cube.vertices[edgeEnd], centerOffset);
+        const startVertex = [...cube.vertices[edgeStart]];
+        const endVertex = [...cube.vertices[edgeEnd]];
 
-        const startX = projectedX(startVertex) * scale + c.width / 2;
-        const startY = projectedY(startVertex) * scale + c.height / 2;
-        const endX = projectedX(endVertex) * scale + c.width / 2;
-        const endY = projectedY(endVertex) * scale + c.height / 2;
+        const rotatedStart = rotateVertex(startVertex, centerOffset);
+        const rotatedEnd = rotateVertex(endVertex, centerOffset);
+
+        const startX = projectedX(rotatedStart) * scale + c.width / 2;
+        const startY = projectedY(rotatedStart) * scale + c.height / 2;
+        const endX = projectedX(rotatedEnd) * scale + c.width / 2;
+        const endY = projectedY(rotatedEnd) * scale + c.height / 2;
 
         ctx.strokeStyle = "blue";
         ctx.beginPath();
@@ -99,47 +102,43 @@ function drawCube(){
 
 
 function rotateVertex(vertex, centerOffset){
+   // Create a copy of the vertex coordinates
     let x = vertex[0] - centerOffset[0];
     let y = vertex[1] - centerOffset[1];
     let z = vertex[2] - centerOffset[2];
 
-    console.log(x);
-    console.log(y);
-    console.log(z);
+    // Rotate around X axis
+    let newY = y * Math.cos(rotationX) - z * Math.sin(rotationX);
+    let newZ = y * Math.sin(rotationX) + z * Math.cos(rotationX);
+    y = newY;
+    z = newZ;
 
-    vertex[1] = (y * Math.cos(rotationX)) - (z * Math.sin(rotationX));
-    vertex[2] = y * Math.sin(rotationX) + z * Math.cos(rotationX);
+    // Rotate around Y axis
+    let newX = x * Math.cos(rotationY) + z * Math.sin(rotationY);
+    newZ = -x * Math.sin(rotationY) + z * Math.cos(rotationY);
+    x = newX;
+    z = newZ;
 
-    y = vertex[1] - centerOffset[1];
-    z = vertex[2] - centerOffset[2];
-    vertex[0] = x * Math.cos(rotationY) + z * Math.sin(rotationY);
-    vertex[2] = -x * Math.sin(rotationY) + z * Math.cos(rotationY);
+    // Rotate around Z axis
+    newX = x * Math.cos(rotationZ) - y * Math.sin(rotationZ);
+    newY = x * Math.sin(rotationZ) + y * Math.cos(rotationZ);
+    x = newX;
+    y = newY;
 
-    x = vertex[0] - centerOffset[0];
-    y = vertex[1] - centerOffset[1];
-    vertex[0] = x * Math.cos(rotationZ) - y * Math.sin(rotationZ);
-    vertex[1] = x * Math.sin(rotationZ) + y * Math.cos(rotationZ);
+    // Translate back
+    x += centerOffset[0];
+    y += centerOffset[1];
+    z += centerOffset[2];
 
-    //console.log("vertex" + vertex);
-
-    vertex[0] += centerOffset[0];
-    vertex[1] += centerOffset[1];
-    vertex[2] += centerOffset[2];
-
-
-    return [vertex[0] + cube.pos[0], vertex[1] + cube.pos[1], vertex[2] + cube.pos[2]];
+    return [x + cube.pos[0], y + cube.pos[1], z + cube.pos[2]];
 }
 
 function projectedX(pos){
-    //console.log(pos[2]-cube.pos[2]-camera.pos[2]+FOV);
-    let projectedX = ((pos[0]+cube.pos[0]-camera.pos[0])*FOV)/(pos[2]+cube.pos[2]-camera.pos[2]+FOV)
-    //console.log(projectedX)
-    return projectedX;
+    return (pos[0] - camera.pos[0]) * FOV / (pos[2] - camera.pos[2] + FOV);
 }
 
 function projectedY(pos){
-    let projectedY = ((pos[1]+cube.pos[1]-camera.pos[1])*FOV)/(pos[2]+cube.pos[2]-camera.pos[2]+FOV)
-    return projectedY;
+    return (pos[1] - camera.pos[1]) * FOV / (pos[2] - camera.pos[2] + FOV);
 }
 
 
