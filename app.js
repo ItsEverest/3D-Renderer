@@ -1,3 +1,11 @@
+let cubeOrigin = document.getElementById("cubeOrigin");
+let cubePos = document.getElementById("cubePos");
+let cubeRotation = document.getElementById("cubeRotation");
+let cubeVerticies = document.getElementById("cubeVerticies");
+let cubeEdges = document.getElementById("cubeEdges");
+
+
+
 var c = document.getElementById("renderCanvas");
 var ctx = c.getContext("2d");
 const scale = 2;
@@ -11,10 +19,14 @@ cube.vertices = [
     [100, 100, 100],[200, 100, 100],[200, 200, 100],[100, 200, 100],
     [100, 100, 200],[200, 100, 200],[200, 200, 200],[100, 200, 200]];
 cube.edges = [
-    [0, 1], [1, 2], [2, 3], [3, 0], // bottom face edges
-    [4, 5], [5, 6], [6, 7], [7, 4], // top face edges
-    [0, 4], [1, 5], [2, 6], [3, 7]  // vertical edges connecting top and bottom faces
+    [0, 1], [1, 2], [2, 3], [3, 0], // bottom edges
+    [4, 5], [5, 6], [6, 7], [7, 4], // top edges
+    [0, 4], [1, 5], [2, 6], [3, 7]  // vertical edges
 ];
+
+//Stats
+cubeVerticies.innerHTML = "cube.verticies: " + cube.vertices;
+cubeEdges.innerHTML = "cube.edges: " + cube.edges;
 
 let anim = -380;
 let animreverse = 10;
@@ -44,19 +56,32 @@ function animate(){
         animreverse = 10;
         requestAnimationFrame(animate);
     }
+
+    //Stats
+    cubePos.innerHTML = "cube.pos: " + cube.pos;
+    cubeRotation.innerHTML = "rotation: " + rotationX + " " + rotationY + " " + rotationZ;
 }
 
 animate();
 
 function drawCube(){
     ctx.clearRect(0, 0, c.width, c.height);
+
+    //Calculating origin point
+
+    const centerOffset = [
+        (cube.vertices[6][0] + cube.vertices[0][0]) /2,
+        (cube.vertices[6][1] + cube.vertices[0][1]) /2,
+        (cube.vertices[6][2] + cube.vertices[0][2]) /2
+    ];
+
+
     for(let i = 0; i<(cube.edges).length; i++){
         const edgeStart = cube.edges[i][0];
         const edgeEnd = cube.edges[i][1];
         
-        const startVertex = rotateVertex([...cube.vertices[edgeStart]], rotationX, rotationY, rotationZ);
-        const endVertex = rotateVertex([...cube.vertices[edgeEnd]], rotationX, rotationY, rotationZ);
-
+        const startVertex = rotateVertex(cube.vertices[edgeStart], centerOffset);
+        const endVertex = rotateVertex(cube.vertices[edgeEnd], centerOffset);
 
         const startX = projectedX(startVertex) * scale + c.width / 2;
         const startY = projectedY(startVertex) * scale + c.height / 2;
@@ -71,31 +96,44 @@ function drawCube(){
     }
 }
 
-function rotateVertex(vertex, rotationX, rotationY, rotationZ){
-    let x = vertex[0];
-    let y = vertex[1];
-    let z = vertex[2];
 
-    vertex[1] = y * Math.cos(rotationX) - z * Math.sin(rotationX);
+
+function rotateVertex(vertex, centerOffset){
+    let x = vertex[0] - centerOffset[0];
+    let y = vertex[1] - centerOffset[1];
+    let z = vertex[2] - centerOffset[2];
+
+    console.log(x);
+    console.log(y);
+    console.log(z);
+
+    vertex[1] = (y * Math.cos(rotationX)) - (z * Math.sin(rotationX));
     vertex[2] = y * Math.sin(rotationX) + z * Math.cos(rotationX);
 
-    y = vertex[1];
-    z = vertex[2];
+    y = vertex[1] - centerOffset[1];
+    z = vertex[2] - centerOffset[2];
     vertex[0] = x * Math.cos(rotationY) + z * Math.sin(rotationY);
     vertex[2] = -x * Math.sin(rotationY) + z * Math.cos(rotationY);
 
-    x = vertex[0];
-    y = vertex[1];
+    x = vertex[0] - centerOffset[0];
+    y = vertex[1] - centerOffset[1];
     vertex[0] = x * Math.cos(rotationZ) - y * Math.sin(rotationZ);
     vertex[1] = x * Math.sin(rotationZ) + y * Math.cos(rotationZ);
 
-    return vertex;
+    //console.log("vertex" + vertex);
+
+    vertex[0] += centerOffset[0];
+    vertex[1] += centerOffset[1];
+    vertex[2] += centerOffset[2];
+
+
+    return [vertex[0] + cube.pos[0], vertex[1] + cube.pos[1], vertex[2] + cube.pos[2]];
 }
 
 function projectedX(pos){
-    console.log(pos[2]-cube.pos[2]-camera.pos[2]+FOV);
+    //console.log(pos[2]-cube.pos[2]-camera.pos[2]+FOV);
     let projectedX = ((pos[0]+cube.pos[0]-camera.pos[0])*FOV)/(pos[2]+cube.pos[2]-camera.pos[2]+FOV)
-    console.log(projectedX)
+    //console.log(projectedX)
     return projectedX;
 }
 
