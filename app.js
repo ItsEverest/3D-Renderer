@@ -42,7 +42,7 @@ let animreverse = 10;
 let rotationX = 0;
 let rotationY = 0;
 let rotationZ = 0;
-let rotationSpeed = 0.05;
+let rotationSpeed = 0.01;
 function animate(){
 
     if(anim < 10){
