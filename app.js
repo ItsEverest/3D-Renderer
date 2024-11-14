@@ -10,7 +10,9 @@ var ctx = c.getContext("2d");
 const scale = 2;
 const FOV = 280;
 
-const camera = { pos: [0, 0, 0] };
+const camera = new Object();
+camera.pos = [0, 0, 0];
+camera.rotation = [0, 0, 2];
 
 const cube = new Object();
 cube.pos = [-150, -150, -200];
@@ -20,7 +22,8 @@ cube.vertices = [
 cube.edges = [
     [0, 1], [1, 2], [2, 3], [3, 0], // bottom edges
     [4, 5], [5, 6], [6, 7], [7, 4], // top edges
-    [0, 4], [1, 5], [2, 6], [3, 7]  // vertical edges
+    [0, 4], [1, 5], [2, 6], [3, 7],  // vertical edges
+    [0, 2], [1, 6], [5, 7], [4, 3]
 ];
 
 // Tak ChatGPT nie chciało mi się pisać tabelek
@@ -124,7 +127,7 @@ function rotateVertex(vertex, centerOffset){
     let z = vertex[2] - centerOffset[2];
 
     // Rotate around X axis
-    let newY = y * Math.cos(rotationX) - z * Math.sin(rotationX);
+    let newY = (y) * Math.cos(rotationX) - (z) * Math.sin(rotationX);
     let newZ = y * Math.sin(rotationX) + z * Math.cos(rotationX);
     y = newY;
     z = newZ;
@@ -150,7 +153,9 @@ function rotateVertex(vertex, centerOffset){
 }
 
 function projectedX(pos){
+    ctx.lineWidth = 500/(pos[2] - camera.pos[2] + FOV);
     return (pos[0] - camera.pos[0]) * FOV / (pos[2] - camera.pos[2] + FOV);
+    
 }
 
 function projectedY(pos){
@@ -204,3 +209,13 @@ window.addEventListener("keydown", function (event) {
     // Cancel the default action to avoid it being handled twice
     event.preventDefault();
   }, true);
+
+
+  function updateMouse(event) {
+    pageX.innerText = event.pageX;
+    pageY.innerText = event.pageY;
+  }
+  
+  c.addEventListener("mousemove", updateMouse, false);
+  c.addEventListener("mouseenter", updateMouse, false);
+  c.addEventListener("mouseleave", updateMouse, false);
