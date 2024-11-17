@@ -209,13 +209,3 @@ window.addEventListener("keydown", function (event) {
     // Cancel the default action to avoid it being handled twice
     event.preventDefault();
   }, true);
-
-
-  function updateMouse(event) {
-    pageX.innerText = event.pageX;
-    pageY.innerText = event.pageY;
-  }
-  
-  c.addEventListener("mousemove", updateMouse, false);
-  c.addEventListener("mouseenter", updateMouse, false);
-  c.addEventListener("mouseleave", updateMouse, false);
